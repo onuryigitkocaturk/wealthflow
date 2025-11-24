@@ -1,0 +1,26 @@
+{
+  "AAPL": {
+    "expected_return_30d": 0.05129969828275888,
+    "expected_vol_30d": 0.05915828999124525
+  },
+  "MSFT": {
+    "expected_return_30d": 0.009240885240708374,
+    "expected_vol_30d": 0.07409301278319433
+  },
+  "SPY": {
+    "expected_return_30d": 0.012239696187986149,
+    "expected_vol_30d": 0.04352175223750672
+  },
+  "QQQ": {
+    "expected_return_30d": 0.02573231424144301,
+    "expected_vol_30d": 0.059912166001399265
+  },
+  "TLT": {
+    "expected_return_30d": -0.043648058688834424,
+    "expected_vol_30d": 0.05129831982444111
+  },
+  "GLD": {
+    "expected_return_30d": -0.004292281908731876,
+    "expected_vol_30d": 0.056844066894292944
+  }
+}
