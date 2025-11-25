@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: wealthflow-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: onur
+      POSTGRES_PASSWORD: onur
+      POSTGRES_DB: wealthflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - wealthflow_data:/var/lib/postgresql/data
+    networks:
+      - wealthflow-net
+
+volumes:
+  wealthflow_data:
+
+networks:
+  wealthflow-net:
+    driver: bridge
