@@ -1,0 +1,32 @@
+{
+  "AAPL": {
+    "annual_return": 0.2625824091294451,
+    "annual_volatility": 0.2847336011298513,
+    "sharpe": 0.9222038006315093
+  },
+  "MSFT": {
+    "annual_return": 0.25715649371140725,
+    "annual_volatility": 0.27151998504613895,
+    "sharpe": 0.9470996901672232
+  },
+  "SPY": {
+    "annual_return": 0.1205462826776251,
+    "annual_volatility": 0.17677029845825248,
+    "sharpe": 0.6819374280011995
+  },
+  "QQQ": {
+    "annual_return": 0.18452026521414772,
+    "annual_volatility": 0.2182785448788247,
+    "sharpe": 0.8453431156808491
+  },
+  "TLT": {
+    "annual_return": -0.02603733836732926,
+    "annual_volatility": 0.15324967407270843,
+    "sharpe": -0.16990142735948655
+  },
+  "GLD": {
+    "annual_return": 0.08451557316897068,
+    "annual_volatility": 0.1404853574514126,
+    "sharpe": 0.601597025499264
+  }
+}
