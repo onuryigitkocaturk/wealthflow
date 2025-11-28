@@ -1,13 +1,13 @@
 package com.wealthflow.backend.service;
 
-import com.wealthflow.backend.model.UserProfile;
-import java.util.List;
+import com.wealthflow.backend.dto.UserProfileRequest;
+import com.wealthflow.backend.dto.UserProfileResponse;
 
 public interface UserProfileService {
 
-    UserProfile createUserProfile(UserProfile userProfile);
-    UserProfile getUserProfileById(Long id);
-    List<UserProfile> getAllUserProfiles();
-    void deleteUserProfile(Long id);
+    UserProfileResponse createProfile(UserProfileRequest request);
 
+    UserProfileResponse getProfile(Long id);
+
+    UserProfileResponse updateProfile(Long id, UserProfileRequest request);
 }
