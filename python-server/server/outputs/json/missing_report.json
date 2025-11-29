@@ -1,0 +1,56 @@
+{
+  "AAPL": {
+    "Date": 0,
+    "Close": 0,
+    "Open": 0,
+    "High": 0,
+    "Low": 0,
+    "Volume": 0,
+    "Change": 0
+  },
+  "MSFT": {
+    "Date": 0,
+    "Close": 0,
+    "Open": 0,
+    "High": 0,
+    "Low": 0,
+    "Volume": 0,
+    "Change": 0
+  },
+  "SPY": {
+    "Date": 0,
+    "Close": 0,
+    "Open": 0,
+    "High": 0,
+    "Low": 0,
+    "Volume": 5,
+    "Change": 0
+  },
+  "QQQ": {
+    "Date": 0,
+    "Close": 0,
+    "Open": 0,
+    "High": 0,
+    "Low": 0,
+    "Volume": 0,
+    "Change": 0
+  },
+  "TLT": {
+    "Date": 0,
+    "Close": 0,
+    "Open": 0,
+    "High": 0,
+    "Low": 0,
+    "Volume": 0,
+    "Change": 0
+  },
+  "GLD": {
+    "Date": 0,
+    "Close": 0,
+    "Open": 0,
+    "High": 0,
+    "Low": 0,
+    "Volume": 26,
+    "Change": 0
+  }
+}

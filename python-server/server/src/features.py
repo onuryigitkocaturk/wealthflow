@@ -4,7 +4,8 @@ Feature engineering and risk metrics for WealthFlow project.
 - Uses cleaned OHLCV data from data_loading.load_clean_data
 - Computes daily returns, annual return, volatility, Sharpe ratio
 - Computes correlation matrix across assets
-- Generates basic EDA figures (prices + MA30, return histograms, correlation heatmap)
+- Computes descriptive statistics, missing value report and outlier report
+- Generates EDA figures (prices + MA30, return histograms, boxplots, scatter, correlation heatmap)
 - Exports metrics to JSON for other modules (models_ml, portfolio)
 """
 
@@ -25,7 +26,7 @@ from data_loading import load_clean_data, TICKERS
 
 # ---------- Paths ----------
 
-PYTHON_ROOT = Path(__file__).resolve().parents[1]  
+PYTHON_ROOT = Path(__file__).resolve().parents[1]  # .../codes/server/ veya .../codes/python/
 DATA_DIR = PYTHON_ROOT / "data"
 OUTPUTS_DIR = PYTHON_ROOT / "outputs"
 JSON_DIR = OUTPUTS_DIR / "json"
@@ -159,6 +160,134 @@ def compute_correlation_matrix(returns_dict: Dict[str, pd.Series]) -> pd.DataFra
     return corr
 
 
+# ---------- Descriptive statistics for daily returns ----------
+
+def compute_descriptive_stats_for_returns(
+    returns_dict: Dict[str, pd.Series]
+) -> pd.DataFrame:
+    """
+    Compute descriptive statistics for daily returns of each asset.
+
+    For each ticker:
+        - mean
+        - median
+        - std
+        - min
+        - max
+        - skewness
+        - kurtosis
+
+    Returns:
+        pd.DataFrame indexed by ticker.
+    """
+    rows = []
+
+    for ticker, rets in returns_dict.items():
+        s = rets.dropna().astype(float)
+        if len(s) == 0:
+            row = {
+                "ticker": ticker,
+                "mean": math.nan,
+                "median": math.nan,
+                "std": math.nan,
+                "min": math.nan,
+                "max": math.nan,
+                "skewness": math.nan,
+                "kurtosis": math.nan,
+            }
+        else:
+            row = {
+                "ticker": ticker,
+                "mean": float(s.mean()),
+                "median": float(s.median()),
+                "std": float(s.std()),
+                "min": float(s.min()),
+                "max": float(s.max()),
+                "skewness": float(s.skew()),
+                "kurtosis": float(s.kurtosis()),
+            }
+        rows.append(row)
+
+    stats_df = pd.DataFrame(rows).set_index("ticker")
+    return stats_df
+
+
+# ---------- Missing value report ----------
+
+def compute_missing_report(
+    tickers: Optional[List[str]] = None,
+) -> Dict[str, Dict[str, int]]:
+    """
+    Compute missing value counts per column for each asset.
+
+    Returns:
+        dict[ticker][column] = number of missing values
+    """
+    if tickers is None:
+        tickers = TICKERS
+
+    report: Dict[str, Dict[str, int]] = {}
+
+    for t in tickers:
+        df = load_clean_data(t)
+        missing_counts = df.isna().sum()
+        report[t] = {col: int(missing_counts[col]) for col in missing_counts.index}
+
+    return report
+
+
+# ---------- Outlier report for daily returns (IQR rule) ----------
+
+def compute_outlier_report(
+    returns_dict: Dict[str, pd.Series]
+) -> Dict[str, Dict[str, float]]:
+    """
+    Compute outlier counts for daily returns using 1.5 * IQR rule.
+
+    For each ticker:
+        - lower_bound = Q1 - 1.5 * IQR
+        - upper_bound = Q3 + 1.5 * IQR
+        - outlier_count
+        - total_count
+        - outlier_ratio
+    """
+    report: Dict[str, Dict[str, float]] = {}
+
+    for ticker, rets in returns_dict.items():
+        s = rets.dropna().astype(float)
+        total = len(s)
+
+        if total == 0:
+            report[ticker] = {
+                "lower_bound": math.nan,
+                "upper_bound": math.nan,
+                "outlier_count": 0,
+                "total_count": 0,
+                "outlier_ratio": 0.0,
+            }
+            continue
+
+        q1 = float(s.quantile(0.25))
+        q3 = float(s.quantile(0.75))
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+
+        mask_outlier = (s < lower_bound) | (s > upper_bound)
+        outlier_count = int(mask_outlier.sum())
+        outlier_ratio = float(outlier_count / total) if total > 0 else 0.0
+
+        report[ticker] = {
+            "lower_bound": lower_bound,
+            "upper_bound": upper_bound,
+            "outlier_count": outlier_count,
+            "total_count": total,
+            "outlier_ratio": outlier_ratio,
+        }
+
+    return report
+
+
 # ---------- JSON export helpers ----------
 
 def save_asset_stats_json(
@@ -222,6 +351,108 @@ def save_correlation_matrix_json(
 
     with path.open("w", encoding="utf-8") as f:
         json.dump(corr_dict, f, indent=2)
+
+    return path
+
+
+def save_descriptive_stats_returns_json(
+    stats_df: pd.DataFrame,
+    path: Optional[Path] = None,
+) -> Path:
+    """
+    Save descriptive statistics for daily returns to JSON.
+
+    Schema:
+        {
+          "AAPL": {
+            "mean": ...,
+            "median": ...,
+            "std": ...,
+            "min": ...,
+            "max": ...,
+            "skewness": ...,
+            "kurtosis": ...
+          },
+          ...
+        }
+    """
+    if path is None:
+        path = JSON_DIR / "descriptive_stats_returns.json"
+
+    JSON_DIR.mkdir(parents=True, exist_ok=True)
+
+    stats_dict = {}
+    for ticker, row in stats_df.iterrows():
+        stats_dict[ticker] = {
+            "mean": float(row["mean"]) if not pd.isna(row["mean"]) else None,
+            "median": float(row["median"]) if not pd.isna(row["median"]) else None,
+            "std": float(row["std"]) if not pd.isna(row["std"]) else None,
+            "min": float(row["min"]) if not pd.isna(row["min"]) else None,
+            "max": float(row["max"]) if not pd.isna(row["max"]) else None,
+            "skewness": float(row["skewness"]) if not pd.isna(row["skewness"]) else None,
+            "kurtosis": float(row["kurtosis"]) if not pd.isna(row["kurtosis"]) else None,
+        }
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(stats_dict, f, indent=2)
+
+    return path
+
+
+def save_missing_report_json(
+    missing_report: Dict[str, Dict[str, int]],
+    path: Optional[Path] = None,
+) -> Path:
+    """
+    Save missing value report to JSON.
+
+    Schema:
+        {
+          "AAPL": {
+            "Date": 0,
+            "Close": 0,
+            ...
+          },
+          ...
+        }
+    """
+    if path is None:
+        path = JSON_DIR / "missing_report.json"
+
+    JSON_DIR.mkdir(parents=True, exist_ok=True)
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(missing_report, f, indent=2)
+
+    return path
+
+
+def save_outlier_report_json(
+    outlier_report: Dict[str, Dict[str, float]],
+    path: Optional[Path] = None,
+) -> Path:
+    """
+    Save outlier report to JSON.
+
+    Schema:
+        {
+          "AAPL": {
+            "lower_bound": ...,
+            "upper_bound": ...,
+            "outlier_count": ...,
+            "total_count": ...,
+            "outlier_ratio": ...
+          },
+          ...
+        }
+    """
+    if path is None:
+        path = JSON_DIR / "outlier_report.json"
+
+    JSON_DIR.mkdir(parents=True, exist_ok=True)
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(outlier_report, f, indent=2)
 
     return path
 
@@ -304,6 +535,64 @@ def plot_correlation_heatmap(corr: pd.DataFrame) -> None:
     plt.close()
 
 
+def plot_returns_boxplots(
+    returns_dict: Dict[str, pd.Series]
+) -> None:
+    """
+    Plot and save boxplots of daily returns for all tickers in a single figure.
+    """
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Align series lengths by padding NaNs where necessary
+    returns_df = pd.DataFrame(returns_dict)
+    plt.figure(figsize=(10, 5))
+    # Each column is a ticker; pandas handles NaNs in boxplot
+    returns_df.boxplot()
+    plt.title("Daily Returns Boxplot by Asset")
+    plt.ylabel("Daily Return")
+    plt.tight_layout()
+
+    out_path = FIGURES_DIR / "returns_boxplot_all.png"
+    plt.savefig(out_path, dpi=150)
+    plt.close()
+
+
+def plot_scatter_returns(
+    returns_dict: Dict[str, pd.Series],
+    x_ticker: str = "SPY",
+    y_ticker: str = "QQQ",
+) -> None:
+    """
+    Plot and save scatter plot of daily returns between two assets.
+
+    Default: SPY vs QQQ.
+    """
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+
+    if x_ticker not in returns_dict or y_ticker not in returns_dict:
+        raise KeyError("Requested tickers not found in returns_dict")
+
+    # Align the two return series on index
+    df_pair = pd.concat(
+        [returns_dict[x_ticker].rename(x_ticker),
+         returns_dict[y_ticker].rename(y_ticker)],
+        axis=1
+    ).dropna(how="any")
+
+    plt.figure(figsize=(6, 6))
+    plt.scatter(df_pair[x_ticker], df_pair[y_ticker], alpha=0.5)
+    plt.title(f"Scatter of Daily Returns: {x_ticker} vs {y_ticker}")
+    plt.xlabel(f"{x_ticker} Daily Return")
+    plt.ylabel(f"{y_ticker} Daily Return")
+    plt.axhline(0, color="black", linewidth=0.5)
+    plt.axvline(0, color="black", linewidth=0.5)
+    plt.tight_layout()
+
+    out_path = FIGURES_DIR / f"scatter_{x_ticker}_{y_ticker}_returns.png"
+    plt.savefig(out_path, dpi=150)
+    plt.close()
+
+
 # ---------- CLI entrypoint (for quick generation) ----------
 
 if __name__ == "__main__":
@@ -312,13 +601,27 @@ if __name__ == "__main__":
     asset_stats = compute_all_assets_metrics()
     corr = compute_correlation_matrix(returns_dict)
 
+    # Descriptive statistics, missing report, outlier report
+    desc_stats_df = compute_descriptive_stats_for_returns(returns_dict)
+    missing_report = compute_missing_report()
+    outlier_report = compute_outlier_report(returns_dict)
+
     # Save JSON metrics
     save_asset_stats_json(asset_stats)
     save_correlation_matrix_json(corr)
+    save_descriptive_stats_returns_json(desc_stats_df)
+    save_missing_report_json(missing_report)
+    save_outlier_report_json(outlier_report)
 
     # Generate figures
     plot_prices_with_ma()
     plot_returns_histograms(returns_dict)
     plot_correlation_heatmap(corr)
+    plot_returns_boxplots(returns_dict)
+    plot_scatter_returns(returns_dict, x_ticker="SPY", y_ticker="QQQ")
 
-    print("features.py: asset_stats.json, correlation_matrix.json and figures generated.")
+    print(
+        "features.py: asset_stats.json, correlation_matrix.json, "
+        "descriptive_stats_returns.json, missing_report.json, outlier_report.json "
+        "and figures generated."
+    )
