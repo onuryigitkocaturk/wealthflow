@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/user-profiles")
+@RequestMapping("/api/users")
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
@@ -18,29 +20,34 @@ public class UserProfileController {
         this.userProfileService = userProfileService;
     }
 
-    // CREATE user profile
     @PostMapping
-    public ResponseEntity<UserProfileResponse> createProfile(
-            @Valid @RequestBody UserProfileRequest request
-    ) {
+    public ResponseEntity<UserProfileResponse> createProfile(@RequestBody @Valid UserProfileRequest request) {
         UserProfileResponse response = userProfileService.createProfile(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.ok(response);
     }
 
-    // GET user profile by ID
     @GetMapping("/{id}")
     public ResponseEntity<UserProfileResponse> getProfile(@PathVariable Long id) {
         UserProfileResponse response = userProfileService.getProfile(id);
         return ResponseEntity.ok(response);
     }
 
-    // UPDATE user profile
     @PutMapping("/{id}")
-    public ResponseEntity<UserProfileResponse> updateProfile(
-            @PathVariable Long id,
-            @Valid @RequestBody UserProfileRequest request
-    ) {
+    public ResponseEntity<UserProfileResponse> updateProfile(@PathVariable Long id, @RequestBody @Valid UserProfileRequest request) {
         UserProfileResponse response = userProfileService.updateProfile(id, request);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping
+    public ResponseEntity<List<UserProfileResponse>> getAllProfiles() {
+        List<UserProfileResponse> response = userProfileService.getAllProfiles();
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProfile(@PathVariable Long id) {
+        userProfileService.deleteProfile(id);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
 }

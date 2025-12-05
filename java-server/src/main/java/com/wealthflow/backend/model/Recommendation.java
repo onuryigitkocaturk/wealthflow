@@ -27,19 +27,6 @@ public class Recommendation {
     public Recommendation() {
     }
 
-    public Recommendation(UserProfile userProfile, List<Allocation> allocations, LocalDateTime generatedAt) {
-        this.userProfile = userProfile;
-        this.allocations = allocations;
-        this.generatedAt = generatedAt;
-    }
-
-    public Recommendation(Long id, UserProfile userProfile, List<Allocation> allocations, LocalDateTime generatedAt) {
-        this.id = id;
-        this.userProfile = userProfile;
-        this.allocations = allocations;
-        this.generatedAt = generatedAt;
-    }
-
     public Long getId() {
         return id;
     }

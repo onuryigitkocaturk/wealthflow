@@ -27,17 +27,6 @@ public class Allocation {
     public Allocation() {
     }
 
-    public Allocation(Asset asset, Double percentage) {
-        this.asset = asset;
-        this.percentage = percentage;
-    }
-
-    public Allocation(Long id, Asset asset, Double percentage) {
-        this.id = id;
-        this.asset = asset;
-        this.percentage = percentage;
-    }
-
     public Long getId() {
         return id;
     }
