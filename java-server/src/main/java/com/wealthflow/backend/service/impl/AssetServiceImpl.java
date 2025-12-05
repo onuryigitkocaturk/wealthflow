@@ -1,6 +1,8 @@
 package com.wealthflow.backend.service.impl;
 
+import com.wealthflow.backend.dto.AssetResponse;
 import com.wealthflow.backend.exception.ResourceNotFoundException;
+import com.wealthflow.backend.mapper.AssetMapper;
 import com.wealthflow.backend.model.Asset;
 import com.wealthflow.backend.repository.AssetRepository;
 import com.wealthflow.backend.service.AssetService;
@@ -19,28 +21,33 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public List<Asset> getAllAssets() {
-        return assetRepository.findAll();
+    public List<AssetResponse> getAllAssets() {
+        return assetRepository.findAll()
+                .stream()
+                .map(AssetMapper::toResponse) // her asset objesi için AssetMapper.toResponse(asset) çağırıyor..
+                .toList();
     }
 
     @Override
-    public Asset getAssetById(Long id) {
-        return assetRepository.findById(id)
+    public AssetResponse getAssetById(Long id) {
+        Asset asset = assetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Asset not found with id: " + id));
+
+        return AssetMapper.toResponse(asset);
     }
 
-    @Override
-    public Asset createAsset(Asset asset) {
-        return assetRepository.save(asset);
-    }
-
-    @Override
-    public void deleteAsset(Long id) {
-
-        if (!assetRepository.existsById((id))) {
-            throw new ResourceNotFoundException("Asset not found with id: " + id);
-        }
-
-        assetRepository.deleteById(id);
-    }
+//    @Override
+//    public Asset createAsset(Asset asset) {
+//        return assetRepository.save(asset);
+//    }
+//
+//    @Override
+//    public void deleteAsset(Long id) {
+//
+//        if (!assetRepository.existsById((id))) {
+//            throw new ResourceNotFoundException("Asset not found with id: " + id);
+//        }
+//
+//        assetRepository.deleteById(id);
+//      }
 }
