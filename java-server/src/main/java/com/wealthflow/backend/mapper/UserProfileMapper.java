@@ -3,7 +3,7 @@ package com.wealthflow.backend.mapper;
 import com.wealthflow.backend.dto.UserProfileResponse;
 import com.wealthflow.backend.model.UserProfile;
 
-public class UserProfileResponseMapper {
+public class UserProfileMapper {
 
     public static UserProfileResponse toResponse(UserProfile p) {
         return new UserProfileResponse(

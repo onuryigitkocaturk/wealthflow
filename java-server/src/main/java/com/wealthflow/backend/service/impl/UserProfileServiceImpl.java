@@ -3,16 +3,14 @@ package com.wealthflow.backend.service.impl;
 import com.wealthflow.backend.dto.UserProfileRequest;
 import com.wealthflow.backend.dto.UserProfileResponse;
 import com.wealthflow.backend.exception.ResourceNotFoundException;
-import com.wealthflow.backend.mapper.UserProfileResponseMapper;
+import com.wealthflow.backend.mapper.UserProfileMapper;
 import com.wealthflow.backend.model.UserProfile;
-import com.wealthflow.backend.model.enums.RiskTolerance;
 import com.wealthflow.backend.repository.UserProfileRepository;
 import com.wealthflow.backend.service.UserProfileService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -37,7 +35,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         UserProfile saved = userProfileRepository.save(profile);
 
-        return UserProfileResponseMapper.toResponse(saved);
+        return UserProfileMapper.toResponse(saved);
     }
 
     @Override
@@ -45,7 +43,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         UserProfile profile = userProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile not found: " + id));
 
-        return UserProfileResponseMapper.toResponse(profile);
+        return UserProfileMapper.toResponse(profile);
     }
 
     @Override
@@ -63,14 +61,14 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         UserProfile updated = userProfileRepository.save(profile);
 
-        return UserProfileResponseMapper.toResponse(updated);
+        return UserProfileMapper.toResponse(updated);
     }
 
     @Override
     public List<UserProfileResponse> getAllProfiles() {
         return userProfileRepository.findAll()
                 .stream()
-                .map(UserProfileResponseMapper::toResponse)
+                .map(UserProfileMapper::toResponse)
                 .toList();
     }
 
