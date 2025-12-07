@@ -16,5 +16,4 @@ public record UserProfileResponse(
          Boolean riskOverride,
          String overrideTolerance
 
-) {
-}
+) {}

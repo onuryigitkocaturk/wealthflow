@@ -9,5 +9,5 @@ public record AssetResponse(
         String name,
         AssetType type,
         RiskLevel riskLevel,
-        Double esgScore)
-{}
+        Double esgScore
+) {}

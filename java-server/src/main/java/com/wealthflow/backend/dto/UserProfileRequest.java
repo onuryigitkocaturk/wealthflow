@@ -30,5 +30,4 @@ public record UserProfileRequest(
         @NotNull(message = "Risk tolerance is required")
         RiskTolerance riskTolerance
 
-) {
-}
+) {}
