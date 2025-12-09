@@ -1,5 +1,6 @@
 package com.wealthflow.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wealthflow.backend.model.enums.RiskTolerance;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,6 +18,10 @@ public class UserProfile {
 
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    @JsonIgnore
+    private String passwordHash;
 
     private String name;
 
@@ -47,10 +52,11 @@ public class UserProfile {
     public UserProfile() {
     }
 
-    public UserProfile(String email, String name, Integer age, Double annualIncome,
+    public UserProfile(String email, String passwordHash, String name, Integer age, Double annualIncome,
                        Integer investmentHorizon, Double riskScore, Boolean esgPreference,
                        RiskTolerance riskTolerance, Boolean riskOverride, RiskTolerance overrideTolerance) {
         this.email = email;
+        this.passwordHash = passwordHash;
         this.name = name;
         this.age = age;
         this.annualIncome = annualIncome;
@@ -156,5 +162,21 @@ public class UserProfile {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    protected void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
