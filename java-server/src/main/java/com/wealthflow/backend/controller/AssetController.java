@@ -1,9 +1,10 @@
 package com.wealthflow.backend.controller;
 
+import com.wealthflow.backend.api.ApiResponse;
+import com.wealthflow.backend.api.ApiResponseBuilder;
 import com.wealthflow.backend.dto.AssetResponse;
-import com.wealthflow.backend.mapper.AssetMapper;
-import com.wealthflow.backend.model.Asset;
 import com.wealthflow.backend.service.AssetService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +21,21 @@ public class AssetController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AssetResponse>> getAllAssets() {
-        List<AssetResponse> response = assetService.getAllAssets();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse<List<AssetResponse>>> getAllAssets(HttpServletRequest request) {
+        List<AssetResponse> assets = assetService.getAllAssets();
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(request, "Asset fetched successfully", assets)
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AssetResponse> getAssetById(@PathVariable Long id) {
-        AssetResponse response = assetService.getAssetById(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse<AssetResponse>> getAssetById(
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
+        AssetResponse asset = assetService.getAssetById(id);
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(request, "Asset fetched successfully", asset)
+        );
     }
 }

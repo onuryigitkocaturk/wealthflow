@@ -1,10 +1,12 @@
 package com.wealthflow.backend.controller;
 
+import com.wealthflow.backend.api.ApiResponse;
+import com.wealthflow.backend.api.ApiResponseBuilder;
 import com.wealthflow.backend.dto.UserProfileRequest;
 import com.wealthflow.backend.dto.UserProfileResponse;
 import com.wealthflow.backend.service.UserProfileService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,33 +23,55 @@ public class UserProfileController {
     }
 
     @PostMapping
-    public ResponseEntity<UserProfileResponse> createProfile(@RequestBody @Valid UserProfileRequest request) {
-        UserProfileResponse response = userProfileService.createProfile(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse<UserProfileResponse>> createProfile(
+            @RequestBody @Valid UserProfileRequest requestDto,
+            HttpServletRequest request
+    ) {
+        UserProfileResponse response = userProfileService.createProfile(requestDto);
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(request, "User profile created successfully", response)
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserProfileResponse> getProfile(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
         UserProfileResponse response = userProfileService.getProfile(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(request, "User profile fetched successfully", response)
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserProfileResponse> updateProfile(@PathVariable Long id, @RequestBody @Valid UserProfileRequest request) {
-        UserProfileResponse response = userProfileService.updateProfile(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
+            @PathVariable Long id,
+            @RequestBody @Valid UserProfileRequest requestDto,
+            HttpServletRequest request
+    ) {
+        UserProfileResponse response = userProfileService.updateProfile(id, requestDto);
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(request,"User profile updated successfully", response)
+        );
     }
 
     @GetMapping
-    public ResponseEntity<List<UserProfileResponse>> getAllProfiles() {
+    public ResponseEntity<ApiResponse<List<UserProfileResponse>>> getAllProfiles(HttpServletRequest request) {
         List<UserProfileResponse> response = userProfileService.getAllProfiles();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(request, "All user profiles fetched successfully", response)
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProfile(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteProfile(
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
         userProfileService.deleteProfile(id);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(request, "User profile deleted successfully", null)
+        );
     }
-
 }
