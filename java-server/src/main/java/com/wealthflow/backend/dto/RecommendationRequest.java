@@ -8,7 +8,7 @@ public record RecommendationRequest(
         @NotNull(message = "User profile ID is required")
         Long userProfileId,
 
-        @NotNull(message = "Manueal override flag must be provided")
+        @NotNull(message = "Manuel override flag must be provided")
         Boolean manualOverride,
 
         RiskLevel overrideRiskLevel

@@ -24,7 +24,7 @@ public class AssetServiceImpl implements AssetService {
     public List<AssetResponse> getAllAssets() {
         return assetRepository.findAll()
                 .stream()
-                .map(AssetMapper::toResponse) // her asset objesi için AssetMapper.toResponse(asset) çağırıyor..
+                .map(AssetMapper::toResponse)
                 .toList();
     }
 
@@ -35,19 +35,4 @@ public class AssetServiceImpl implements AssetService {
 
         return AssetMapper.toResponse(asset);
     }
-
-//    @Override
-//    public Asset createAsset(Asset asset) {
-//        return assetRepository.save(asset);
-//    }
-//
-//    @Override
-//    public void deleteAsset(Long id) {
-//
-//        if (!assetRepository.existsById((id))) {
-//            throw new ResourceNotFoundException("Asset not found with id: " + id);
-//        }
-//
-//        assetRepository.deleteById(id);
-//      }
 }

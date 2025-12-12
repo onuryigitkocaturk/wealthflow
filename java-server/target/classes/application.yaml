@@ -1,3 +1,4 @@
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/wealthflow
@@ -8,12 +9,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+jwt:
+  secret: "wealthflow-backend-jwt-secret-key-256bit-secure"
+  access-token-expiration-ms: 3600000
 
 server:
   port: 8080
+debug: true
