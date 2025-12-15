@@ -8,6 +8,7 @@ import com.wealthflow.backend.service.UserProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,56 +23,40 @@ public class UserProfileController {
         this.userProfileService = userProfileService;
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<UserProfileResponse>> createProfile(
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getMyProfile(
+            HttpServletRequest request,
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+
+        UserProfileResponse response = userProfileService.getProfileByEmail(email);
+
+        return ResponseEntity.ok(
+                ApiResponseBuilder.success(
+                        request,
+                        "User profile fethced successfulyy",
+                        response
+                )
+        );
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updateMyProfile(
             @RequestBody @Valid UserProfileRequest requestDto,
-            HttpServletRequest request
+            HttpServletRequest request,
+            Authentication authentication
     ) {
-        UserProfileResponse response = userProfileService.createProfile(requestDto);
-        return ResponseEntity.ok(
-                ApiResponseBuilder.success(request, "User profile created successfully", response)
-        );
-    }
+        String email = authentication.getName();
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
-            @PathVariable Long id,
-            HttpServletRequest request
-    ) {
-        UserProfileResponse response = userProfileService.getProfile(id);
-        return ResponseEntity.ok(
-                ApiResponseBuilder.success(request, "User profile fetched successfully", response)
-        );
-    }
+        UserProfileResponse response = userProfileService.updateProfileByEmail(email, requestDto);
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
-            @PathVariable Long id,
-            @RequestBody @Valid UserProfileRequest requestDto,
-            HttpServletRequest request
-    ) {
-        UserProfileResponse response = userProfileService.updateProfile(id, requestDto);
         return ResponseEntity.ok(
-                ApiResponseBuilder.success(request,"User profile updated successfully", response)
-        );
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<UserProfileResponse>>> getAllProfiles(HttpServletRequest request) {
-        List<UserProfileResponse> response = userProfileService.getAllProfiles();
-        return ResponseEntity.ok(
-                ApiResponseBuilder.success(request, "All user profiles fetched successfully", response)
-        );
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteProfile(
-            @PathVariable Long id,
-            HttpServletRequest request
-    ) {
-        userProfileService.deleteProfile(id);
-        return ResponseEntity.ok(
-                ApiResponseBuilder.success(request, "User profile deleted successfully", null)
+                ApiResponseBuilder.success(
+                        request,
+                        "User profile updated successfully",
+                        response
+                )
         );
     }
 }

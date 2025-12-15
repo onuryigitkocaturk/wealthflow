@@ -9,9 +9,9 @@ public interface UserProfileService {
 
     UserProfileResponse createProfile(UserProfileRequest request);
 
-    UserProfileResponse getProfile(Long id);
+    UserProfileResponse getProfileByEmail(String email);
 
-    UserProfileResponse updateProfile(Long id, UserProfileRequest request);
+    UserProfileResponse updateProfileByEmail(String email, UserProfileRequest request);
 
     List<UserProfileResponse> getAllProfiles();
 

@@ -39,17 +39,28 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public UserProfileResponse getProfile(Long id) {
-        UserProfile profile = userProfileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("UserProfile not found: " + id));
+    public UserProfileResponse getProfileByEmail(String email) {
+
+        UserProfile profile = userProfileRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("UserProfile not found for email: " + email)
+                );
 
         return UserProfileMapper.toResponse(profile);
     }
 
     @Override
-    public UserProfileResponse updateProfile(Long id, UserProfileRequest request) {
-        UserProfile profile = userProfileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("UserProfile not found: " + id));
+    public UserProfileResponse updateProfileByEmail(
+            String currentEmail,
+            UserProfileRequest request
+    ) {
+
+        UserProfile profile = userProfileRepository.findByEmail(currentEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "UserProfile not found for email: " + currentEmail
+                        )
+                );
 
         profile.setEmail(request.email());
         profile.setName(request.name());
@@ -63,6 +74,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         return UserProfileMapper.toResponse(updated);
     }
+
 
     @Override
     public List<UserProfileResponse> getAllProfiles() {
